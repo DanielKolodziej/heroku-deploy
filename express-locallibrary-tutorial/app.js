@@ -4,6 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+//production
+var helmet = require('helmet');
+var compression = require('compression');
+
 //contain code for handling particular sets of related "routes" 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -15,7 +19,11 @@ var app = express();
 
 //Set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB = 'mongodb+srv://dkolodziej:dKolo77ii@cluster0-d04oq.mongodb.net/local_library?retryWrites=true';
+//for developtment
+//var mongoDB = 'mongodb+srv://dkolodziej:dKolo77ii@cluster0-d04oq.mongodb.net/local_library?retryWrites=true';
+//for production
+var dev_db_url = 'mongodb+srv://dkolodziej:dKolo77ii@cluster0-d04oq.mongodb.net/local_library?retryWrites=true';
+var mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB, { useNewUrlParser: true });
 var db = mongoose.connection;
 // creates the default connection to the database and binds to the error event
@@ -27,7 +35,8 @@ app.set('views', path.join(__dirname, 'views'));
 //set the 'view engine' value to specify the template library
 app.set('view engine', 'pug');
 
-
+app.use(compression()); //Compress all routes
+app.use(helmet());
 //call app.use() to add the middleware libraries into the request handling chain
 app.use(logger('dev'));
 app.use(express.json());
